@@ -126,7 +126,7 @@ void ADrone::Look(const FInputActionValue& Value)
 	FVector2D LookInput(Value.Get<FVector2D>());
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
 
-
+	
 	if (PlayerController)
 	{
 		FRotator CurrentRot = PlayerController->GetControlRotation();
