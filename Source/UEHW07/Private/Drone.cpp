@@ -23,14 +23,14 @@ ADrone::ADrone()
 	Arrow = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
 	Arrow->SetupAttachment(BoxComp);
 
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArmComp->SetupAttachment(BoxComp);
-	SpringArmComp->TargetArmLength = 300.0f;
-	SpringArmComp->bUsePawnControlRotation = true;
+	//SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	//SpringArmComp->SetupAttachment(BoxComp);
+	//SpringArmComp->TargetArmLength = 300.0f;
+	//SpringArmComp->bUsePawnControlRotation = true;
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
-	CameraComp->bUsePawnControlRotation = false;
+	CameraComp->SetupAttachment(BoxComp);
+	//CameraComp->bUsePawnControlRotation = false;
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Fab/Parrot_Camo_drone/parrot_camo_drone.parrot_camo_drone"));
 
 	if (Mesh.Succeeded())
@@ -46,7 +46,6 @@ ADrone::ADrone()
 	FlySpeed = Speed * 0.3; // 공중 이동속도
 	Gravity = -9.8f; // 중력
 	MouseSensitivity = 45.0f; // 회전 속도(마우스 감도)
-	bUseControllerRotationYaw = true;
 }
 
 // Called when the game starts or when spawned
@@ -129,17 +128,21 @@ void ADrone::Look(const FInputActionValue& Value)
 	ADroneController* PlayerController = GetWorld() ? GetWorld()->GetFirstPlayerController<ADroneController>() : nullptr;
 	FVector2D LookInput(Value.Get<FVector2D>());
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
-	FRotator DeltaRot(LookInput.Y * MouseSensitivity * DeltaTime, 0.f, 0.f);
+	FRotator DeltaRot(LookInput.Y * MouseSensitivity * DeltaTime, LookInput.X * MouseSensitivity * DeltaTime, 0.f);
+	//FRotator DeltaRot(LookInput.Y * MouseSensitivity * DeltaTime, 0.f, 0.f);
 	
-	if (PlayerController)
-	{
-		FRotator CurrentRot = PlayerController->GetControlRotation();
-		CurrentRot.Yaw += LookInput.X * MouseSensitivity * DeltaTime;
-		CurrentRot.Pitch += LookInput.Y * MouseSensitivity * DeltaTime;
-		PlayerController->SetControlRotation(CurrentRot);
+	//if (PlayerController)
+	//{
+	//	FRotator CurrentRot = PlayerController->GetControlRotation();
+	//	CurrentRot.Yaw += LookInput.X * MouseSensitivity * DeltaTime;
+	//	CurrentRot.Pitch += LookInput.Y * MouseSensitivity * DeltaTime;
+	//	PlayerController->SetControlRotation(CurrentRot);
 
-		AddActorLocalRotation(DeltaRot);
-	}
+	//	AddActorLocalRotation(DeltaRot);
+	//}
+
+	AddActorLocalRotation(DeltaRot);
+
 }
 
 void ADrone::Roll(const FInputActionValue& Value) // 드론 기울기
@@ -149,14 +152,14 @@ void ADrone::Roll(const FInputActionValue& Value) // 드론 기울기
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
 	FRotator DeltaRot(0.f, 0.f, RollInput * MouseSensitivity * DeltaTime);
 
-	if (PlayerController)
-	{
-		FRotator CurrentRot = PlayerController->GetControlRotation();
-		CurrentRot.Roll += RollInput * MouseSensitivity * DeltaTime;
-		PlayerController->SetControlRotation(CurrentRot);
+	//if (PlayerController)
+	//{
+	//	FRotator CurrentRot = PlayerController->GetControlRotation();
+	//	CurrentRot.Roll += RollInput * MouseSensitivity * DeltaTime;
+	//	PlayerController->SetControlRotation(CurrentRot);
 
-		AddActorLocalRotation(DeltaRot);
-	}
+	//}
+	AddActorLocalRotation(DeltaRot);
 	
 }
 
