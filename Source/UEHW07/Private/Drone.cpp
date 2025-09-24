@@ -41,7 +41,7 @@ ADrone::ADrone()
 	BoxComp->SetSimulatePhysics(false);
 
 
-	Speed = 300.0f; // 공중이 아닐 때 이동속도
+	Speed = 500.0f; // 공중이 아닐 때 이동속도
 	bIsFly = false; // 공중인지 판단
 	FlySpeed = Speed * 0.3; // 공중 이동속도
 	Gravity = -9.8f; // 중력
@@ -68,7 +68,12 @@ void ADrone::Tick(float DeltaTime)
 		DropVector.Z = 0;
 		bIsFly = false;
 	}
-	else if (bIsFly)
+	else
+	{
+		bIsFly = true;
+	}
+
+	if (bIsFly)
 	{
 		DropVector.Z += Gravity * DeltaTime;
 		SetActorLocation(DropVector);
@@ -113,7 +118,6 @@ void ADrone::Move(const FInputActionValue& Value)
 	if (!FMath::IsNearlyZero(MoveInput.Z)) 
 	{
 		MoveDirection += GetActorUpVector() * MoveInput.Z;
-		bIsFly = true;
 	}
 
 	MoveDirection.Normalize();
@@ -125,7 +129,7 @@ void ADrone::Look(const FInputActionValue& Value)
 	ADroneController* PlayerController = GetWorld() ? GetWorld()->GetFirstPlayerController<ADroneController>() : nullptr;
 	FVector2D LookInput(Value.Get<FVector2D>());
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
-
+	FRotator DeltaRot(LookInput.Y * MouseSensitivity * DeltaTime, 0.f, 0.f);
 	
 	if (PlayerController)
 	{
@@ -133,24 +137,33 @@ void ADrone::Look(const FInputActionValue& Value)
 		CurrentRot.Yaw += LookInput.X * MouseSensitivity * DeltaTime;
 		CurrentRot.Pitch += LookInput.Y * MouseSensitivity * DeltaTime;
 		PlayerController->SetControlRotation(CurrentRot);
+
+		AddActorLocalRotation(DeltaRot);
 	}
 }
 
 void ADrone::Roll(const FInputActionValue& Value) // 드론 기울기
 {
+	ADroneController* PlayerController = GetWorld() ? GetWorld()->GetFirstPlayerController<ADroneController>() : nullptr;
 	float RollInput(Value.Get<float>());
-
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
-
 	FRotator DeltaRot(0.f, 0.f, RollInput * MouseSensitivity * DeltaTime);
 
-	AddActorLocalRotation(DeltaRot);
+	if (PlayerController)
+	{
+		FRotator CurrentRot = PlayerController->GetControlRotation();
+		CurrentRot.Roll += RollInput * MouseSensitivity * DeltaTime;
+		PlayerController->SetControlRotation(CurrentRot);
+
+		AddActorLocalRotation(DeltaRot);
+	}
+	
 }
 
 bool ADrone::HitFloor()
 {
 	FHitResult HitResult;
-	FVector LineTraceEndPos = GetActorLocation() - FVector(0.0f, 0.0f, 30.f);
+	FVector LineTraceEndPos = GetActorLocation() - FVector(0.0f, 0.0f, 92.f);
 	return GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), LineTraceEndPos, ECC_WorldStatic); // 라인 트레이스 바닥 검출
 }
 

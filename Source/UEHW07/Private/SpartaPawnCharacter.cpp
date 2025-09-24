@@ -108,7 +108,7 @@ void ASpartaPawnCharacter::LookAction(const FInputActionValue& Value)
 	FVector2D LookInput(Value.Get<FVector2D>());
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
 
-	// Pawn이 움직이는게 아니라 PlayerController가 움직인다? (인터넷 서치함)
+	// Pawn이 움직이는게 아니라 Controller가 움직인다
 	if (PlayerController)
 	{
 		FRotator CurrentRot = PlayerController->GetControlRotation();
